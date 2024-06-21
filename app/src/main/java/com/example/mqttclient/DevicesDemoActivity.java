@@ -1,11 +1,16 @@
 package com.example.mqttclient;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -29,6 +34,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class DevicesDemoActivity extends AppCompatActivity implements MqttService.MqttEventCallBack, CompoundButton.OnCheckedChangeListener {
 
@@ -36,9 +42,9 @@ public class DevicesDemoActivity extends AppCompatActivity implements MqttServic
     private EditText airCconditioningValue;
     private MqttService.MqttBinder mqttBinder;
     private String TAG = "MainActivity";
-    private Switch parlourLightSwitch, curtain_switch, fan_socket_switch, air_conditioning_switch;
+    private Switch parlourLightSwitch, curtain_switch, fan_socket_switch, air_conditioning_switch, parlourLightSwitch2, socketSwitch1, socketSwitch2 ;
     private Map<String, Integer> subscribeTopics = new HashMap<>();
-    private ImageView image1,image2;
+    private ImageView image1,image2, image5, image6, image7;
 
     private boolean isDoorOpen = false;
 
@@ -79,7 +85,15 @@ public class DevicesDemoActivity extends AppCompatActivity implements MqttServic
 
         airCconditioningValue = findViewById(R.id.air_conditioning_value);
         parlourLightSwitch = findViewById(R.id.parlour_light_switch);
+        parlourLightSwitch2 = findViewById(R.id.parlour_light_switch2);
         parlourLightSwitch.setOnCheckedChangeListener(this);
+        parlourLightSwitch2.setOnCheckedChangeListener(this);
+
+        socketSwitch1 = findViewById(R.id.socket1);
+        socketSwitch2 = findViewById(R.id.socket2);
+        socketSwitch1.setOnCheckedChangeListener(this);
+        socketSwitch2.setOnCheckedChangeListener(this);
+
         curtain_switch = findViewById(R.id.curtain_switch);
         curtain_switch.setOnCheckedChangeListener(this);
         fan_socket_switch = findViewById(R.id.fan_socket_switch);
@@ -89,6 +103,7 @@ public class DevicesDemoActivity extends AppCompatActivity implements MqttServic
 
         image1=findViewById(R.id.image1);
         image2=findViewById(R.id.image2);
+        image5=findViewById(R.id.image5);
         final Animation animation= AnimationUtils.loadAnimation(this, R.anim.rotate);
         animation.setFillAfter(true);
         image1.setOnClickListener(new View.OnClickListener() {
@@ -113,6 +128,20 @@ public class DevicesDemoActivity extends AppCompatActivity implements MqttServic
                 parlourLightSwitch.setChecked(!open);
             }
         });
+        image5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean open=parlourLightSwitch2.isChecked();
+                if (open)
+                    image5.setImageResource(R.drawable.ic_lightbulb_outline_black_24dp);
+                else
+                    image5.setImageResource(R.drawable.ic_wb_incandescent_black_24dp);
+                parlourLightSwitch2.setChecked(!open);
+            }
+        });
+
+
+
     }
 
     @Override
@@ -131,6 +160,35 @@ public class DevicesDemoActivity extends AppCompatActivity implements MqttServic
                     e.printStackTrace();
                 }
                 break;
+            case R.id.parlour_light_switch2:
+                try {
+                    if (compoundButton.isChecked()) {
+                        mqttBinder.publishMessage("/test/light2",
+                                new Gson().toJson(new BoolMessage(true)));
+                    } else {
+                        mqttBinder.publishMessage("/test/light2",
+                                new Gson().toJson(new BoolMessage(false)));
+                    }
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+
+            case R.id.socket1:
+                try {
+                    if (compoundButton.isChecked()) {
+                        mqttBinder.publishMessage("/test/outlet1",
+                                new Gson().toJson(new BoolMessage(true)));
+                    } else {
+                        mqttBinder.publishMessage("/test/outlet1",
+                                new Gson().toJson(new BoolMessage(false)));
+                    }
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
+
 
             case R.id.curtain_switch:
                 try {
@@ -254,39 +312,50 @@ public class DevicesDemoActivity extends AppCompatActivity implements MqttServic
 //        }
 //
 //    }
-@Override
-public void onMqttMessage(String topic,String message){
-    Log.d("onMqttMessage","topic:"+topic+"message length:"+message.length()+
-            ",message:"+message);
-    Gson gson = new Gson();
-    switch (subscribeTopics.get(topic)){
-        case 1:
-            temperatureValue.setText(String.valueOf(gson.fromJson(message.trim(),
-                    FloatMessage.class).value));
-            break;
+    @Override
+    public void onMqttMessage(String topic,String message){
+        Log.d("onMqttMessage","topic:"+topic+"message length:"+message.length()+
+                ",message:"+message);
+        Gson gson = new Gson();
+        switch (subscribeTopics.get(topic)){
+            case 1:
+                temperatureValue.setText(String.valueOf(gson.fromJson(message.trim(),
+                        FloatMessage.class).value));
+                break;
 
-        case 2:
-            humidityValue.setText(String.valueOf(gson.fromJson(message.trim(),
-                    IntMessage.class).value));
-            break;
-        case 3:
-            pmValue.setText(String.valueOf(gson.fromJson(message.trim(),
-                    IntMessage.class).value));
-            break;
-        case 4:
-            gasValue.setText(String.valueOf(gson.fromJson(message.trim(),
-                    IntMessage.class).value));
-            break;
-        case 5:
-//                String status = gson.fromJson(message.trim(),BoolMessage.class).value ?"开":"关";
-//                doorStatues.setText(status);
-            isDoorOpen = !isDoorOpen;
-            doorStatus.setText(isDoorOpen ? "开" : "关");
+            case 2:
+                humidityValue.setText(String.valueOf(gson.fromJson(message.trim(),
+                        IntMessage.class).value));
+                break;
+            case 3:
+                pmValue.setText(String.valueOf(gson.fromJson(message.trim(), IntMessage.class).value));
+                IntMessage int1Message = gson.fromJson(message.trim(), IntMessage.class);
+                int pmValue = int1Message.value;
+                if (pmValue > 50) {
+                    // 发送通知
+                    sendNotification("PM2.5浓度超标", "PM2.5浓度已达到: " + pmValue+"！！！请注意防护。");
+                }
+                break;
+            case 4:
+                gasValue.setText(String.valueOf(gson.fromJson(message.trim(), IntMessage.class).value));
+                IntMessage intMessage = gson.fromJson(message.trim(), IntMessage.class);
+                int gasValue = intMessage.value;
+                if (gasValue > 50) {
+                    // 发送通知
+                    sendNotification("可燃气体浓度超标", "可燃气体浓度已达到: " + gasValue);
+                }
+                break;
+
+            case 5:
+    //                String status = gson.fromJson(message.trim(),BoolMessage.class).value ?"开":"关";
+    //                doorStatues.setText(status);
+                isDoorOpen = !isDoorOpen;
+                doorStatus.setText(isDoorOpen ? "开" : "关");
 
 
-            break;
+                break;
+        }
     }
-}
 
     @Override
     protected void onRestart() {
@@ -309,6 +378,45 @@ public void onMqttMessage(String topic,String message){
     protected void onDestroy() {
         unbindService(connection);
         super.onDestroy();
+    }
+
+
+    private void sendNotification(String title, String content) {
+        // 创建通知管理器
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            // 创建通知构建器
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "your_channel_id")
+                    .setSmallIcon(R.drawable.ic_launcher_background) // 设置通知小图标
+                    .setContentTitle(title) // 设置通知标题
+                    .setContentText(content) // 设置通知内容
+                    .setPriority(NotificationCompat.PRIORITY_HIGH); // 设置通知优先级
+
+            // 发送通知
+            notificationManager.notify(new Random().nextInt(), builder.build());
+        }
+    }
+    private void createNotificationChannel() {
+        // 检查Android版本是否支持NotificationChannel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 创建NotificationChannel实例
+            NotificationChannel channel = new NotificationChannel("your_channel_id", "Channel Name", NotificationManager.IMPORTANCE_DEFAULT);
+
+            // 设置NotificationChannel属性
+            channel.setDescription("Channel Description"); // 可选：设置渠道描述
+            channel.enableLights(true); // 是否在通知时闪烁灯
+            channel.setLightColor(Color.RED); // 灯闪烁的颜色
+            channel.setVibrationPattern(new long[]{0, 1000, 500, 1000}); // 振动模式
+            channel.enableVibration(true); // 是否振动
+
+            // 获取系统服务中的NotificationManager
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+            // 注册NotificationChannel
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
     }
 
 }

@@ -2,10 +2,13 @@ package com.example.mqttclient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -23,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements MqttService.MqttE
     private TextView connectState;
     private MqttService.MqttBinder mqttBinder;
     private String TAG = "MainActivity";
+
+
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
