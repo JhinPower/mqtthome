@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#333333">
 
     <TextView
         android:id="@+id/connect_state"
@@ -9,39 +11,46 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textSize="22sp"
-        android:text="未连接"/>
+        android:textColor="#FFFFFF"
+        android:text="已连接"/>
 
     <Button
         android:id="@+id/settings_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="设置"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"/>
+
     <Button
         android:id="@+id/pubsub_test_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="测试发布订阅"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"/>
+
     <Button
         android:id="@+id/dev_demo_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="示例设备"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"/>
 
     <Button
         android:id="@+id/button_weather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="显示天气"
-        android:onClick="showWeatherNotification"/>
+        android:onClick="showWeatherNotification"
+        android:textColor="#FFFFFF"/>
 
     <Button
         android:id="@+id/themeButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="切换主题" />
-
+        android:text="切换主题"
+        android:textColor="#FFFFFF"/>
 
 </LinearLayout>
